@@ -42,7 +42,7 @@ import tv.freetel.pmovies2.network.service.DiscoverMovieService;
 import tv.freetel.pmovies2.util.Constants;
 
 /**
- * This Fragment class is added by ShowDetailsActivity to show details screen.
+ * This Fragment class is added by ShowDetailsActivity to show details screen
  *
  */
 public class DetailsScreenFragment extends Fragment {
