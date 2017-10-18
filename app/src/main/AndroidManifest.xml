@@ -45,6 +45,16 @@
                 android:value=".view.MainActivity" />
         </activity>
 
+        <!-- In order to use the content provider, even from within your own app,
+        you must update the AndroidManifest.xml file: In the application node, add:
+        https://guides.codepath.com/android/Creating-Content-Providers-->
+        <provider
+            android:name=".data.MovieProvider"
+            android:authorities="com.androidessence.moviedatabase"
+            android:exported="false"
+            android:protectionLevel="signature"
+            android:syncable="true"/>
+
     </application>
 
 </manifest>
