@@ -1,6 +1,8 @@
 package tv.freetel.pmovies2.adapter;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import tv.freetel.pmovies2.R;
+import tv.freetel.pmovies2.data.MovieContract;
 import tv.freetel.pmovies2.network.model.Movie;
 import tv.freetel.pmovies2.util.Constants;
 
@@ -78,6 +81,16 @@ public class GalleryItemAdapter extends ArrayAdapter<Movie> {
     public void addAll(List<Movie> movie){
         this.mMovieList = movie;
         notifyDataSetChanged();
+    }
+
+    /**
+     * This method returns Poster URL (string) from the passed cursor.
+     */
+    private String convertCursorRowToUXFormat(Cursor cursor) {
+        // get row indices for our cursor
+        int idx_movie_poster_path = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_PATH);
+        Log.d(LOG_TAG, "Column Index: " + idx_movie_poster_path);
+        return cursor.getString(idx_movie_poster_path);
     }
 
 }

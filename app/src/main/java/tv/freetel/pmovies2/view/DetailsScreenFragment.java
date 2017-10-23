@@ -1,9 +1,11 @@
 package tv.freetel.pmovies2.view;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,7 +23,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,10 +53,20 @@ import tv.freetel.pmovies2.network.model.TrailerInfo;
 import tv.freetel.pmovies2.network.service.DiscoverMovieService;
 import tv.freetel.pmovies2.util.Constants;
 
+import static tv.freetel.pmovies2.data.MovieContract.MovieEntry.CONTENT_URI;
+
 /**
  * This Fragment class is added by ShowDetailsActivity to show details screen
- * Add implements LoaderManager.LoaderCallbacks<Cursor> in order to be able to insert movie into favorite movie db.
  *
+ *The classes and interfaces of the Loader API:
+ *https://www.grokkingandroid.com/using-loaders-in-android/
+ * Add implements LoaderManager.LoaderCallbacks<Cursor> in order to be able to insert movie into favorite movie db.
+ * The classes and interfaces of the Loader API
+ * LoaderManager -Manages your Loaders for you. Responsible for dealing with the Activity or Fragment lifecycle
+ * LoaderManager.LoaderCallbacks-A callback interface you must implement
+ * Loader-The base class for all Loaders
+ * AsyncTaskLoader -An implementation that uses an AsyncTask to do its work
+ * CursorLoader-A subclass of AsyncTaskLoader for accessing ContentProvider data
  */
 public class DetailsScreenFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -108,7 +119,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);// fragment should handle menu events.
-        setRetainInstance(true);
+        setRetainInstance(true);// Retain this fragment across configuration changes.
            }
 
     @Override
@@ -339,7 +350,9 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
      */
 
 
-    public void onCheckboxClicked(View FavoriteIconView) {
+
+
+    public onCheckboxClicked(View FavoriteIconView) {
         // Is the view now checked?
         boolean checked = ((AppCompatCheckBox) FavoriteIconView).isChecked();
 
@@ -347,32 +360,32 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
         switch(FavoriteIconView.getId()) {
             case R.id.favoriteIcon:
                 if (checked){
+
                     // Add a new movie record
+                    // Create a new map of values, where column names are the keys
                     ContentValues values = new ContentValues();
                     values.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID,
                             mMovieID.getText().toString().trim());
 
                     values.put(MovieContract.MovieEntry.COLUMN_TITLE,
-                            mMovieTitle.getText().toString().trim());
+                            mMovieTitleTxtV.getText().toString().trim());
 
                     values.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH,
-                            mMoviePoster.getText().toString().trim());
+                            mMoviePosterImV.getText().toString().trim());
 
                     values.put(MovieContract.MovieEntry.COLUMN_OVERVIEW,
-                            mMovieOverview.getText().toString().trim());
+                            mMovieOverviewTxtV.getText().toString().trim());
 
                     values.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
-                            mMovieRating.getText().toString().trim());
+                            mMovieRatingTxtV.getText().toString().trim());
 
                     values.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
-                            mMovieReleaseYear.getText().toString().trim());
+                            mMovieReleaseYearTxtV.getText().toString().trim());
 
+                    Uri uri;
+                    uri = getContentResolver().insert(
+                            MovieContract.MovieEntry.CONTENT_URI, values);
 
-                    Uri uri = getContentResolver().insert(
-                            StudentsProvider.CONTENT_URI, values);
-
-                    Toast.makeText(getBaseContext(),
-                            uri.toString(), Toast.LENGTH_LONG).show();
                 }
 
             // Delete movie from favorite movie database
@@ -399,12 +412,15 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
             }
         }
 
-
         // Remove the meat
-    }
+    }}
+    /*You do not instantiate the LoaderManager yourself. Instead you simply call
+    getLoaderManager()from within your activity or your fragment to get hold of it.
+     */
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+            //The initLoader() method adds a Loader to the LoaderManager:
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
@@ -413,38 +429,44 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        // Since the details screen shows all movie attributes, define a projection that contains
-        // all columns from the movie db table
+        if (mCurrentMovieUri != null) {
+            String selectionClause = MovieContract.MovieEntry._ID + " = ?";
+            String[] selectionArgs = new String[]{"" + mMovieID};
 
-        String[] MOVIE_COLUMNS = {
-                MovieContract.MovieEntry.COLUMN_MOVIE_ID,
-                MovieContract.MovieEntry.COLUMN_TITLE,
-                MovieContract.MovieEntry.COLUMN_POSTER_PATH,
-                MovieContract.MovieEntry.COLUMN_OVERVIEW,
-                MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
-                MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
-        };
+        // Since the details screen shows all movie attributes, define a projection that contains
+            // all columns from the movie db table
+
+            String[] MOVIE_COLUMNS = {
+                    MovieContract.MovieEntry.COLUMN_MOVIE_ID,
+                    MovieContract.MovieEntry.COLUMN_TITLE,
+                    MovieContract.MovieEntry.COLUMN_POSTER_PATH,
+                    MovieContract.MovieEntry.COLUMN_OVERVIEW,
+                    MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
+                    MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
+            };
 
          /* URI for all rows of weather data in our weather table */
-        Uri movieQueryUri = MovieContract.MovieEntry.CONTENT_URI;
-
+            Uri movieQueryUri = CONTENT_URI;
         // This loader will execute the ContentProvider's query method on a background thread
-        return new CursorLoader(this,
-                movieQueryUri,
-                MOVIE_COLUMNS,      //projection
-                null,      //selection
-                null,      //selection args
-                null       //sort order
-        );
-        } }
+            CursorLoader loader = new CursorLoader(
+                    this.getActivity(),
+                    movieQueryUri, //projection
+                    MOVIE_COLUMNS, //selection
+                    selectionClause,    //selection
+                    selectionArgs,      //selection args
+                    null); //sort order
+        };
+        return null;
+    }
 
+        //Here you update the UI based on the results of your query.
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.v(LOG_TAG, "In onLoadFinished");
         // Bail early if the cursor is null or there is less than 1 row in the cursor
-        if (cursor == null || cursor.getCount() < 1) {
-            return;
-        }
+            if (!cursor.moveToFirst()) {
+                return;
+            }
 
         // Proceed with moving to the first row of the cursor and reading data from it
         // (This should be the only row in the cursor)
@@ -517,7 +539,6 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
             }
 
             fetchMovieTrailersAndReviews(mMovieID);
-        }
     }
-}
+    }
 }
