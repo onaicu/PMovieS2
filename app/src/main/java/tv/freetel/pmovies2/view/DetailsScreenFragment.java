@@ -1,11 +1,9 @@
 package tv.freetel.pmovies2.view;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -29,7 +27,6 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -73,7 +70,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
     private static final String LOG_TAG = DetailsScreenFragment.class.getSimpleName();
     private static final String MOVIE_DETAILS_SHARE_HASHTAG = " #PopularMoviesApp";
     private static final int DETAIL_LOADER = 0;
-    private URI mCurrentMovieUri;
+    private Uri mCurrentMovieUri;
 
     //LAYOUTS**************************************************************
 
@@ -111,6 +108,8 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
     private String mMovieRating;
     private String mMovieReleaseYear;
     AppCompatCheckBox FavoriteIconView;
+    // declare global
+    Movie selectedMovie;
 
     public DetailsScreenFragment() {
     }
@@ -184,10 +183,10 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
         //Inspect the intent for movie data.
         Intent intent = getActivity().getIntent();
         if (intent != null && intent.hasExtra(ShowDetailsActivity.EXTRA_MOVIE)) {
-            Movie selectedMovie = intent.getParcelableExtra(ShowDetailsActivity.EXTRA_MOVIE);
+            selectedMovie = intent.getParcelableExtra(ShowDetailsActivity.EXTRA_MOVIE);
             if (selectedMovie != null) {
                 mMovieTitle = selectedMovie.getmTitle();
-                fillDetailScreen(selectedMovie);
+                fillDetailScreen();
             }
         }
 
@@ -197,9 +196,8 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
     /**
      * Used to render original title, poster image, overview (plot), user rating, review and release date.
      *
-     * @param selectedMovie
      */
-    private void fillDetailScreen(final Movie selectedMovie) {
+    private void fillDetailScreen() {
         mMovieTitleTxtV.setText(selectedMovie.getmTitle());
         Picasso.with(getContext())
                 .load(Constants.MOVIE_DB_POSTER_URL + Constants.POSTER_PHONE_SIZE + selectedMovie.getmPosterPath())
@@ -349,10 +347,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
      * https://stackoverflow.com/questions/11131058/how-to-properly-insert-values-into-the-sqlite-database-using-contentproviders-i
      */
 
-
-
-
-    public onCheckboxClicked(View FavoriteIconView) {
+    public void onCheckboxClicked(View FavoriteIconView) {
         // Is the view now checked?
         boolean checked = ((AppCompatCheckBox) FavoriteIconView).isChecked();
 
@@ -365,27 +360,27 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
                     // Create a new map of values, where column names are the keys
                     ContentValues values = new ContentValues();
                     values.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID,
-                            mMovieID.getText().toString().trim());
+                            selectedMovie.getmId());
 
                     values.put(MovieContract.MovieEntry.COLUMN_TITLE,
-                            mMovieTitleTxtV.getText().toString().trim());
+                            selectedMovie.getmTitle());
 
                     values.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH,
-                            mMoviePosterImV.getText().toString().trim());
+                            selectedMovie.getmPosterPath());
 
                     values.put(MovieContract.MovieEntry.COLUMN_OVERVIEW,
-                            mMovieOverviewTxtV.getText().toString().trim());
+                            selectedMovie.getmOverview());
 
                     values.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
-                            mMovieRatingTxtV.getText().toString().trim());
+                            selectedMovie.getmVoteAverage());
 
                     values.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
-                            mMovieReleaseYearTxtV.getText().toString().trim());
+                            selectedMovie.getmReleaseDate());
 
+                    // call getactivity() in order to be able to access the getConentResolver from within this fragment.
                     Uri uri;
-                    uri = getContentResolver().insert(
+                    uri = getActivity().getContentResolver().insert(
                             MovieContract.MovieEntry.CONTENT_URI, values);
-
                 }
 
             // Delete movie from favorite movie database
@@ -396,23 +391,23 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
                 // Call the ContentResolver to delete the movie at the given content URI.
                 // Pass in null for the selection and selection args because the mCurrentMovieUri
                 // content URI already identifies the movie that we want.
+                // call getactivity() in order to be able to access the getConentResolver from within this fragment.
 
-                int movieDeleted = getContentResolver().delete(mCurrentMovieUri, null, null);
+                int movieDeleted = getActivity().getContentResolver().delete(mCurrentMovieUri, null, null);
 
                 // Show a toast message depending on whether or not the delete was successful.
                 if (movieDeleted == 0) {
                     // If no rows were deleted, then there was an error with the delete.
-                    Toast.makeText(this, getString(R.string.failed_deleteFavorite),
+                    Toast.makeText(getActivity(), getString(R.string.failed_deleteFavorite),
                             Toast.LENGTH_SHORT).show();
                 } else {
                     // Otherwise, the delete was successful and we can display a toast.
-                    Toast.makeText(this, getString(R.string.deleted_favorite),
+                    Toast.makeText(getActivity(), getString(R.string.deleted_favorite),
                             Toast.LENGTH_SHORT).show();
                 }
             }
         }
 
-        // Remove the meat
     }}
     /*You do not instantiate the LoaderManager yourself. Instead you simply call
     getLoaderManager()from within your activity or your fragment to get hold of it.
@@ -445,7 +440,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
                     MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
             };
 
-         /* URI for all rows of weather data in our weather table */
+         /* URI for all rows of movie data in our movie table */
             Uri movieQueryUri = CONTENT_URI;
         // This loader will execute the ContentProvider's query method on a background thread
             CursorLoader loader = new CursorLoader(
@@ -488,7 +483,6 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
         mMovieRating = cursor.getString(voteAverageColumnIndex);
         mMovieReleaseYear = cursor.getString(movieReleaseYearColumnIndex);
 
-        fillDetailsScreen();
     } }
 
     @Override
@@ -496,8 +490,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
         /**
          * Used to render original title, poster image, overview (plot), user rating and release date.
          */
-
-        private void fillDetailsScreen(){
+        {
 
             if (mMovieTitleTxtV != null) {
                 mMovieTitleTxtV.setText(mMovieTitle);
@@ -537,8 +530,6 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
             if (mMovieReleaseYearTxtV != null) {
                 mMovieReleaseYearTxtV.setText(mMovieReleaseYear);
             }
-
-            fetchMovieTrailersAndReviews(mMovieID);
     }
     }
 }
