@@ -22,11 +22,17 @@
     <!-- Label for discover movie option in highest rated/voted sort order preference [CHAR LIMIT=25] -->
     <string name="pref_sort_label_highest_rated">Highest rated</string>
 
+    <!-- Label for discover movie option in favorite sort order preference [CHAR LIMIT=25] -->
+    <string name="pref_sort_label_favorite">Favorite</string>
+
     <!-- Key name for temperature unit preference in SharedPreferences [CHAR LIMIT=NONE] -->
     <string name="pref_sort_key" translatable="false">sortBy</string>
 
     <!-- Value in SharedPreferences for most popular movie discover option [CHAR LIMIT=NONE] -->
     <string name="pref_sort_by_popular" translatable="false">popular</string>
+
+    <!-- Value in SharedPreferences for favorite movie discover option [CHAR LIMIT=NONE] -->
+    <string name="pref_sort_by_favorite" translatable="false">favorite</string>
 
     <!-- Value in SharedPreferences for most rated/voted  movie discover option [CHAR LIMIT=NONE] -->
     <string name="pref_sort_by_rating" translatable="false">top_rated</string>

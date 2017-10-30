@@ -4,13 +4,14 @@
     <string-array name="pref_sorting_options">
         <item>@string/pref_sort_label_most_popular</item>
         <item>@string/pref_sort_label_highest_rated</item>
-
+        <item>@string/pref_sort_label_favorite</item>
     </string-array>
 
     <!--add <item>@string/pref_sort_by_favorite</item>-->
     <string-array name="pref_sorting_values">
         <item>@string/pref_sort_by_popular</item>
         <item>@string/pref_sort_by_rating</item>
+        <item>@string/pref_sort_by_favorite</item>
     </string-array>
 
 </resources>

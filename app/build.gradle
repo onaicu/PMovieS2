@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion "26.0.2"
 
     defaultConfig {
         applicationId "tv.freetel.pmovies2"
@@ -14,7 +14,12 @@ android {
         // Please ensure you have a valid API KEY for themoviedb.org to use this app
         // A valid key will need to be entered
         buildConfigField("String", "MOVIE_DB_API_KEY", MOVIE_DB_API_KEY)
-    }
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath false
+            }
+    } }
     buildTypes {
         release {
             minifyEnabled false
@@ -30,7 +35,7 @@ repositories {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:26.0.0'
+    compile 'com.android.support:appcompat-v7:26.0.2'
     compile 'com.google.android.gms:play-services-auth:10.2.1'
     compile 'pub.devrel:easypermissions:0.3.0'
     compile('com.google.api-client:google-api-client-android:1.23.0') {
@@ -39,8 +44,9 @@ dependencies {
     compile('com.google.apis:google-api-services-youtube:v3-rev186-1.23.0') {
         exclude group: 'org.apache.httpcomponents'
     }
-    compile 'com.android.support:design:26.0.0'
+    compile 'com.android.support:design:26.0.2'
     //Butterknife for view injection
+    annotationProcessor 'com.jakewharton:butterknife:7.0.1'
     compile 'com.jakewharton:butterknife:7.0.1'
     //Picasso for loading and caching images
     compile 'com.squareup.picasso:picasso:2.5.2'
@@ -57,5 +63,6 @@ dependencies {
     compile 'com.facebook.stetho:stetho-okhttp3:1.5.0'
     compile 'com.facebook.stetho:stetho-okhttp:1.5.0'
     compile 'com.facebook.stetho:stetho-urlconnection:1.5.0'
+
 
 }
