@@ -23,7 +23,6 @@ import android.net.Uri;
  */
 
 public class MovieProvider extends ContentProvider {
-
     /**
      * First, we need to define an integer identifier for each URI or query we plan to write.
      * In this case we will have two for each query; A URI for all rows, and a URI for an individual row
@@ -182,10 +181,11 @@ public class MovieProvider extends ContentProvider {
         }
 
         // Because null could delete all rows:
+        // If we actually deleted any rows, notify that a change has occurred to this URI
         if(selection == null || rows != 0){
             getContext().getContentResolver().notifyChange(uri, null);
         }
-
+        // Return the number of rows deleted
         return rows;
     }
 
@@ -198,6 +198,14 @@ public class MovieProvider extends ContentProvider {
             case MOVIE:
                 rows = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
+
+            case MOVIE_ID: {
+                rows = db.update(MovieContract.MovieEntry.TABLE_NAME,
+                        values,
+                        MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ?",
+                        new String[] {String.valueOf(ContentUris.parseId(uri))});
+                break;
+            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -208,4 +216,5 @@ public class MovieProvider extends ContentProvider {
 
         return rows;
     }
+
 }

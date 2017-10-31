@@ -54,24 +54,18 @@
             android:layout_toRightOf="@id/moviePoster"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
-        <android.support.v7.widget.AppCompatCheckBox
+        <ImageView
             android:id="@+id/favoriteIcon"
             style="@style/MovieItemPadding"
-            android:layout_marginLeft="30dp"
-            android:layout_marginStart="30dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="180dp"
+            android:layout_toRightOf="@id/moviePoster"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_favorite_black_24dp"
-            android:button="@drawable/customdrawablecheckbox"
-            android:contentDescription="@string/img_movie_favorite_desc"
-            android:layout_below="@+id/movieRating"
-            android:layout_alignLeft="@+id/movieRating"
-            android:layout_alignStart="@+id/movieRating"
-            android:layout_marginTop="18dp"
-            android:layout_alignRight="@+id/movieRating"
-            android:layout_alignEnd="@+id/movieRating" />
+            android:visibility="invisible"
+            android:contentDescription="@string/img_movie_favorite_desc"/>
 
 
         <TextView

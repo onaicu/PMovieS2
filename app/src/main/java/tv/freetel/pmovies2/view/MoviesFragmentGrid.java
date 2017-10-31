@@ -61,17 +61,15 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
 
     //VARIABLES**************************************************************
     private static final String LOG_TAG = MoviesFragmentGrid.class.getSimpleName();
-    private Uri mfavoriteMovieUri;
-    private int mMovieID;
-    // declare global
-    Movie selectedMovie;
+
     String sortBy;
 
     //LAYOUTS**************************************************************
+    @Bind(R.id.moviesGrid)
     GridView mMovieGrid;
 
     //ADAPTERS**************************************************************
-    private GalleryItemAdapter galleryItemAdapter;
+    private GalleryItemAdapter mFavoriteMovieAdapter;
     private List<Movie> mMovieList = new ArrayList<>();
     private static final int MOVIE_LOADER_ID = 0;
 
@@ -99,20 +97,6 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
         setHasOptionsMenu(true); // fragment should handle menu events
     }
 
-    /**
-     * This callback makes the fragment visible to the user when the containing activity is started.
-     * We want to make a network request before user can  begin interacting with the user (onResume callback)
-     */
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.d(LOG_TAG, "onStart called");
-        //if  user has selected either "popular" or "highest rated" sort criteria, we need to make a web call
-        if (sortBy.equalsIgnoreCase(getResources().getString(R.string.pref_sort_by_favorite))) {
-            fetchMovies();
-        }
-    }
 
     @Override
     public void onPause() {
@@ -122,12 +106,16 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
     /**
      * fetch movie list from Open Movie DB REST back-end.
      * The sort order is retrieved from Shared Preferences
-     */
-    private void fetchMovies() {
+     private void fetchMovies() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sortBy = prefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_order_default));
-        getMovies(sortBy);
+        getMovies(sortBy);}
+    */
+    public String sortBy(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString(context.getString(R.string.pref_sort_key),
+                context.getString(R.string.pref_sort_order_default));
     }
 
     /**
@@ -145,15 +133,13 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
 
         Call<MovieInfo> restCall = api.getMovies(sortBy, Constants.MOVIE_DB_API_KEY);
 
-        restCall.enqueue(new Callback<MovieInfo>() {
+        restCall.enqueue(new retrofit.Callback<MovieInfo>() {
             @Override
             public void onResponse(Response<MovieInfo> response, Retrofit retrofit) {
                 if (response.isSuccess()) {
                     // request successful (status code 200, 201)
                     MovieInfo movieInfo = response.body();
                     mMovieList = movieInfo.getmMovieList();
-                    galleryItemAdapter.addAll(mMovieList);
-                    insertMovieRecords(mMovieList);
                     //fetch data from database in case favorite is selected from settings sort criteria. See lines 324 onsortcriteria and 101 Onstart.
                     insertMovieRecords(mMovieList);
                 } else {
@@ -204,60 +190,14 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
 
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.gallery_fragment, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        int id = item.getItemId();
-        if (id == R.id.action_refresh) {
-            fetchMovies();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // The CursorAdapter will take data from our cursor and populate the GridView.
+        mFavoriteMovieAdapter = new GalleryItemAdapter(getActivity(),null, 0) ; //Comment out new ArrayList<Movie>()//)
         View view = inflater.inflate(R.layout.fragment_movies_fragment_grid, container, false);
         ButterKnife.bind(this, view);
-        galleryItemAdapter = new GalleryItemAdapter(getActivity(),null, 0) ; //Comment out new ArrayList<Movie>()//)
-        mMovieGrid.setAdapter(galleryItemAdapter);
+        //attach the adapter to the GridView
+        mMovieGrid.setAdapter(mFavoriteMovieAdapter);
         return view;
-    }
-
-    /**
-     * Used to navigate to Details screen through explicit intent.
-     *
-     * @param position grid item position clicked by the user.
-     */
-    @OnItemClick(R.id.moviesGrid)
-    void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        Movie selectedMovie =
-        mMovieList.get(position);
-
-        Intent intent = new Intent(getContext(), ShowDetailsActivity.class);
-        intent.putExtra(ShowDetailsActivity.EXTRA_MOVIE, selectedMovie);
-        startActivity(intent);
-
-
-        // CursorAdapter returns a cursor at the correct position for getItem(), or null
-        // if it cannot seek to that position.
-        Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-
-        Log.d(LOG_TAG, "Grid view item clicked: position: " + position + " movie ID: " + cursor.getInt(COL_MOVIE_ID) +
-                " movie title: " + cursor.getString(COL_MOVIE_TITLE) + " poster path: " + cursor.getString(COL_MOVIE_POSTER_PATH));
-
-        if (cursor != null) {
-            ((Callback) getActivity())
-                    .onItemSelected(MovieContract.MovieEntry.buildMovieUri(
-                            cursor.getInt(COL_MOVIE_ID)));
-        }
     }
 
     @Override
@@ -268,6 +208,7 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
         getLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
     }
 
+
     /**
      * Create a Cursor Loader : onCreateLoader, onLoadFinished, onLoadReset to query data of favorit movies.
      *
@@ -276,37 +217,70 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
      * @return
      */
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.d(LOG_TAG, "onCreateLoader called");
-        // Defines a string to contain the selection clause
-        String selectionClause = null;
-        // An array to contain selection arguments
-        String[] selectionArgs = null;
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            Log.d(LOG_TAG, "onCreateLoader called");
+            // Defines a string to contain the selection clause
+            String selectionClause = null;
+            // An array to contain selection arguments
+            String[] selectionArgs = null;
+            // Gets a word from the UI
+            String sortCriteria = this.sortBy(getContext());
 
-        // Use the user's input string as the (only) selection argument.
-        selectionArgs = new String[]{"" + mMovieID};
+            // Construct a selection clause that matches the word that the user entered.
+            if (sortCriteria.equalsIgnoreCase(getResources().getString(R.string.pref_sort_by_popular))) {
+                selectionClause = MovieContract.MovieEntry.COLUMN_IS_POPULAR + " = ?";
+            } else if (sortCriteria.equalsIgnoreCase(getResources().getString(R.string.pref_sort_by_rating))) {
+                selectionClause = MovieContract.MovieEntry.COLUMN_IS_RATED + " = ?";
+            } else {
+                selectionClause = MovieContract.MovieEntry.COLUMN_IS_FAVORITE + " = ?";
+            }
 
-        return new CursorLoader(getActivity(),
-                MovieContract.MovieEntry.CONTENT_URI,
-                MOVIE_COLUMNS,   //projection
-                selectionClause,  //selection
-                selectionArgs,  //selection args
-                null); //sort order
-    }
+            // Use the user's input string as the (only) selection argument.
+            selectionArgs = new String[]{"" + 1};
+
+            return new CursorLoader(getActivity(),
+                    MovieContract.MovieEntry.CONTENT_URI,
+                    MOVIE_COLUMNS,   //projection
+                    selectionClause,  //selection
+                    selectionArgs,  //selection args
+                    null); //sort order
+        }
+
+        /**
+         * This callback makes the fragment visible to the user when the containing activity is started.
+         * We want to make a network request before user can  begin interacting with the user (onResume callback)
+         */
+        @Override
+        public void onStart() {
+            super.onStart();
+            Log.d(LOG_TAG, "onStart called");
+            //if  user has selected either "popular" or "highest rated" sort criteria, we need to make a web call
+            if (this.sortBy(getContext()).equalsIgnoreCase(getResources().getString(R.string.pref_sort_by_favorite))) {
+                fetchMovies();
+            }
+        }
+
+        /**
+         * Used to fire an event to the Bus that will fetch movie list from Open Movie DB REST back-end.
+         * The sort order is retrieved from Shared Preferences
+         */
+        private void fetchMovies() {
+            getMovies(sortBy);
+        }
 
     /**
      * Called when loader is complete and data is ready. Used for making UI updates.
+     *
+     * @param loader
+     * @param cursor
      */
-
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.d(LOG_TAG, "onLoadFinished called cursor count is " + cursor.getCount() + " mFavoriteMovieAdapter is: " + galleryItemAdapter);
-        Log.v(LOG_TAG, "In onLoadFinished");
-        if (galleryItemAdapter != null) {
-            galleryItemAdapter.swapCursor(cursor);
+        Log.d(LOG_TAG, "onLoadFinished called cursor count is " + cursor.getCount() + " mFavoriteMovieAdapter is: " + mFavoriteMovieAdapter);
+        if (mFavoriteMovieAdapter != null) {
+            mFavoriteMovieAdapter.swapCursor(cursor);
         }
-
     }
 
     /**
@@ -314,12 +288,60 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
      *
      * @param loader
      */
-
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.d(LOG_TAG, "onLoaderReset called");
-        if (galleryItemAdapter != null) {
-            galleryItemAdapter.swapCursor(null);
+        if (mFavoriteMovieAdapter != null) {
+            mFavoriteMovieAdapter.swapCursor(null);
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        Log.d(LOG_TAG, "onCreateOptionsMenu() called");
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.gallery_fragment, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(LOG_TAG, "onOptionsItemSelected() called");
+        int id = item.getItemId();
+        if (id == R.id.action_refresh) {
+            fetchMovies();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(LOG_TAG, "onStop called");
+    }
+
+
+    /**
+     * Used to navigate to Details screen through explicit intent.
+     *
+     * @param position grid item position clicked by the user.
+     */
+    @OnItemClick(R.id.moviesGrid)
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+
+        // CursorAdapter returns a cursor at the correct position for getItem(), or null
+        // if it cannot seek to that position.
+        Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+
+        Log.d(LOG_TAG, "Grid view item clicked: position: " + position + " movie ID: " + cursor.getInt(COL_MOVIE_ID) + " movie title: " + cursor.getString(COL_MOVIE_TITLE) + " poster path: " + cursor.getString(COL_MOVIE_POSTER_PATH));
+
+        if (cursor != null) {
+            ((Callback) getActivity())
+                    .onItemSelected(MovieContract.MovieEntry.buildMovieUri(
+                            cursor.getInt(COL_MOVIE_ID)
+                    ), cursor.getInt(COL_MOVIE_ID));
         }
     }
 
@@ -327,12 +349,17 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
      * This method is triggered when we have updated the local DB with back-end results.
      * Restart the loader.  restartLoader will trigger onCreateLoader to be called again.
      */
+    @Subscribe
+    public void onMovieEvent(MovieEvent movieEvent) {
+        getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
+    }
+
 
     void onSortCriteriaChanged() {
         Log.d(LOG_TAG, "onSortCriteriaChanged() called");
 
         //make a web call if the user selected popular or highly rated
-        if (sortBy.equalsIgnoreCase(getResources().getString(R.string.pref_sort_by_favorite))) {
+        if (!this.sortBy(getContext()).equalsIgnoreCase(getResources().getString(R.string.pref_sort_by_favorite))) {
             fetchMovies();
         } else {
             //if the user selected favorites, just show movies in the local DB
@@ -342,17 +369,14 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
     }
 
     /**
-     * DetailFragmentCallback for when an item has been selected.
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
      */
     public interface Callback {
-        void onItemSelected(Uri uri);
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(Uri dateUri, int movieID);
     }
-
-    public void onResponse(Response<MovieInfo> response, Retrofit retrofit) {
-        super.onResume();
-    }
-
-    public void onFailure(Throwable t) {
-    }
-
 }

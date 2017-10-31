@@ -72,7 +72,10 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                         MovieEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL, "          +
                         MovieEntry.COLUMN_OVERVIEW   + " TEXT NOT NULL, "           +
                         MovieEntry.COLUMN_VOTE_AVERAGE + "REAL NOT NULL, "          +
-                        MovieEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL, "         + ");");
+                        MovieEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL, "          +
+                        MovieEntry.COLUMN_IS_POPULAR + " INTEGER NOT NULL, " +    // SQLite does not have a separate Boolean storage class.
+                        MovieEntry.COLUMN_IS_RATED + " INTEGER NOT NULL, " +     // Instead, Boolean values are stored as integers 0 (false) and 1 (true).
+                        MovieEntry.COLUMN_IS_FAVORITE + " INTEGER NOT NULL )" );
     }
 
     //  Override onUpgrade, but don't do anything within it yet

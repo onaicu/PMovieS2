@@ -82,6 +82,10 @@ public class MovieContract {
         //      Create a public static final String call COLUMN_RELEASE_DATE with the value "release_date"
         public static final String COLUMN_RELEASE_DATE = "release_date";
 
+        public static final String COLUMN_IS_POPULAR = "isPopular";
+        public static final String COLUMN_IS_RATED = "isRated";
+        public static final String COLUMN_IS_FAVORITE = "isFavorite";
+
         // Needed for ContentProvider: Define a function to build a URI to find a specific movie by it's identifier
         public static Uri buildMovieUri(long id){
             return ContentUris.withAppendedId(CONTENT_URI, id);

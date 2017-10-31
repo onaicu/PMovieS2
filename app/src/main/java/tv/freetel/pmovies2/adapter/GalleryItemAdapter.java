@@ -33,10 +33,8 @@ import tv.freetel.pmovies2.util.Constants;
 
     private static final String LOG_TAG = GalleryItemAdapter.class.getSimpleName();
     private Context mContext;
-
     @Bind(R.id.gallery_item_imageView)
     ImageView imageView;
-    private List<Movie> mMovieList;
 
     /** public GalleryItemAdapter(Context context, List<Movie> movies) {
         super(context, 0, movies);
@@ -99,12 +97,14 @@ import tv.freetel.pmovies2.util.Constants;
      *
      */
 
-   // @Override public int getCount() {
-    //     if(mMovieList != null){
-    //      return mMovieList.size(); }
-    //   else {
-    //    return 0;
-    //   } }
+    /** @Override public int getCount() {
+    if(mMovieList != null){
+    return mMovieList.size(); }
+    else {
+    return 0;
+    } }*
+     */
+
 /**Solution to  addAll method called in MoviesFramentGrid that does not call "notifyDataSetChanged()"
  * method which notifies adapter of changed data:
  * Make your own addAll method which takes arraylist of movies and sets
@@ -115,10 +115,10 @@ import tv.freetel.pmovies2.util.Constants;
  * Now addAll() method in Movies Fragment class will perform same function as that of constructor but it will also
  * call notifyDataSetChanged() which will notify adapter of data changed
  */
-   public void addAll(List<Movie> movie){
-   this.mMovieList = movie;
-    notifyDataSetChanged();
-   }
+    /** public void addAll(List<Movie> movie){
+     this.mMovieList = movie;
+      notifyDataSetChanged();
+   }*/
 
     /**
      * This method returns Poster URL (string) from the passed cursor.
