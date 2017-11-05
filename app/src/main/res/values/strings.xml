@@ -58,5 +58,9 @@
     <!-- Movie failed to be deleted when checkbox is unchecked-->
     <string name="failed_deleteFavorite">Failed to remove movie from Favorites</string>
 
+    <!-- SyncAdapter related -->
+    <string name="sync_account_type">pmovies.example.com</string>
+    <string name="content_authority">tv.freetel.pmovies2</string>
+
 </resources>
 

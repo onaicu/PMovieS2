@@ -1,8 +1,6 @@
 package tv.freetel.pmovies2.view;
-import retrofit.Callback;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
@@ -21,38 +19,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnItemClick;
 import retrofit.Call;
-import retrofit.Callback;
 import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 import tv.freetel.pmovies2.R;
 import tv.freetel.pmovies2.adapter.GalleryItemAdapter;
-import tv.freetel.pmovies2.adapter.MovieReviewAdapter;
 import tv.freetel.pmovies2.data.MovieContract;
 import tv.freetel.pmovies2.event.MovieEvent;
 import tv.freetel.pmovies2.network.model.Movie;
 import tv.freetel.pmovies2.network.model.MovieInfo;
-import tv.freetel.pmovies2.network.model.MovieReview;
 import tv.freetel.pmovies2.network.service.DiscoverMovieService;
+import tv.freetel.pmovies2.sync.MovieSyncAdapter;
 import tv.freetel.pmovies2.util.Constants;
-
-import static tv.freetel.pmovies2.data.MovieContract.MovieEntry.CONTENT_URI;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -61,8 +50,6 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
 
     //VARIABLES**************************************************************
     private static final String LOG_TAG = MoviesFragmentGrid.class.getSimpleName();
-
-    String sortBy;
 
     //LAYOUTS**************************************************************
     @Bind(R.id.moviesGrid)
@@ -112,10 +99,12 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
                 getString(R.string.pref_sort_order_default));
         getMovies(sortBy);}
     */
-    public String sortBy(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getString(context.getString(R.string.pref_sort_key),
-                context.getString(R.string.pref_sort_order_default));
+
+    public static String sortBy(Context context){
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    return prefs.getString(context.getString(R.string.pref_sort_key),
+            context.getString(R.string.pref_sort_order_default));
     }
 
     /**
@@ -191,10 +180,13 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "onCreateView() called");
         // The CursorAdapter will take data from our cursor and populate the GridView.
         mFavoriteMovieAdapter = new GalleryItemAdapter(getActivity(),null, 0) ; //Comment out new ArrayList<Movie>()//)
+
         View view = inflater.inflate(R.layout.fragment_movies_fragment_grid, container, false);
         ButterKnife.bind(this, view);
+
         //attach the adapter to the GridView
         mMovieGrid.setAdapter(mFavoriteMovieAdapter);
         return view;
@@ -214,7 +206,8 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
      *
      * @param id
      * @param args
-     * @return
+     * @
+     * +
      */
 
         @Override
@@ -266,7 +259,7 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
          * The sort order is retrieved from Shared Preferences
          */
         private void fetchMovies() {
-            getMovies(sortBy);
+            MovieSyncAdapter.syncImmediately(getContext());
         }
 
     /**

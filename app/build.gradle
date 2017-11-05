@@ -64,5 +64,20 @@ dependencies {
     compile 'com.facebook.stetho:stetho-okhttp:1.5.0'
     compile 'com.facebook.stetho:stetho-urlconnection:1.5.0'
 
+    //Gradle dependency on Firebase messaging
+    compile "com.google.firebase:firebase-messaging:10.2.1"
+
+    //Gradle dependency on Firebase analytics
+    compile "com.google.firebase:firebase-core:10.2.1"
+
+    //Gradle dependency on Firebase Crash Reporting
+    compile 'com.google.firebase:firebase-crash:10.2.1'
+
+    //Gradle dependency on Firebase Remote Config
+    compile 'com.google.firebase:firebase-config:10.2.1'
+    compile 'com.google.android.gms:play-services:10.2.1'
+    compile 'com.android.support:support-annotations:27.0.0'
+
+    apply plugin: 'com.google.gms.google-services'
 
 }

@@ -17,4 +17,5 @@ public class AppStethoTest extends Application {
                 .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
                 .build());
     }
+
 }
