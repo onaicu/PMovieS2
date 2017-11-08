@@ -26,7 +26,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
      * .db extension.
      */
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 9;
 
     //  Create a constructor that accepts a context and call through to the superclass constructor
 
@@ -64,18 +64,20 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                  * MovieEntry did not explicitly declare a column called "_ID". However,
                  * MovieEntry implements the interface, "BaseColumns", which does have a field
                  * named "_ID". We use that here to designate our table's primary key.
+                 * columns can be null in order to avoid:
+                 * e.g. SQLiteConstraintException: NOT NULL constraint failed: favorite_movie.movie_id (code 1299)
                  */
-                        MovieEntry._ID              + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        MovieEntry._ID              + " INTEGER PRIMARY KEY ON CONFLICT IGNORE, " + // For the INSERT and UPDATE commands, the keywords "ON CONFLICT" are replaced by "OR", this is to avoid unique constraint exception
 
-                        MovieEntry.COLUMN_MOVIE_ID   + " INTEGER NOT NULL, "                 +
+                        MovieEntry.COLUMN_MOVIE_ID   + " INTEGER, "                 +
                         MovieEntry.COLUMN_TITLE      + " TEXT NOT NULL, "           +
-                        MovieEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL, "          +
-                        MovieEntry.COLUMN_OVERVIEW   + " TEXT NOT NULL, "           +
-                        MovieEntry.COLUMN_VOTE_AVERAGE + "REAL NOT NULL, "          +
-                        MovieEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL, "          +
-                        MovieEntry.COLUMN_IS_POPULAR + " INTEGER NOT NULL, " +    // SQLite does not have a separate Boolean storage class.
-                        MovieEntry.COLUMN_IS_RATED + " INTEGER NOT NULL, " +     // Instead, Boolean values are stored as integers 0 (false) and 1 (true).
-                        MovieEntry.COLUMN_IS_FAVORITE + " INTEGER NOT NULL )" );
+                        MovieEntry.COLUMN_POSTER_PATH + " TEXT, "          +
+                        MovieEntry.COLUMN_OVERVIEW   + " TEXT, "           +
+                        MovieEntry.COLUMN_VOTE_AVERAGE + " TEXT NOT NULL, "          +
+                        MovieEntry.COLUMN_RELEASE_DATE + " TEXT , "          +
+                        MovieEntry.COLUMN_IS_POPULAR + " INTEGER , " +    // SQLite does not have a separate Boolean storage class.
+                        MovieEntry.COLUMN_IS_RATED + " INTEGER , " +     // Instead, Boolean values are stored as integers 0 (false) and 1 (true).
+                        MovieEntry.COLUMN_IS_FAVORITE + " INTEGER )" );
     }
 
     //  Override onUpgrade, but don't do anything within it yet

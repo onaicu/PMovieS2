@@ -6,14 +6,31 @@ import android.accounts.AccountManager;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+
+import retrofit.Call;
+import retrofit.GsonConverterFactory;
+import retrofit.Response;
+import retrofit.Retrofit;
 import tv.freetel.pmovies2.R;
+import tv.freetel.pmovies2.adapter.GalleryItemAdapter;
+import tv.freetel.pmovies2.data.MovieContract;
+import tv.freetel.pmovies2.network.model.Movie;
+import tv.freetel.pmovies2.network.model.MovieInfo;
+import tv.freetel.pmovies2.network.service.DiscoverMovieService;
+import tv.freetel.pmovies2.util.Constants;
 import tv.freetel.pmovies2.view.MoviesFragmentGrid;
 
 public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
@@ -26,6 +43,11 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final long DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
     private static final int WEATHER_NOTIFICATION_ID = 3004;
 
+    //ADAPTERS**************************************************************
+    private GalleryItemAdapter mFavoriteMovieAdapter;
+    private List<Movie> mMovieList = new ArrayList<>();
+
+
     public MovieSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
     }
@@ -33,10 +55,94 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(LOG_TAG, "Starting to sync...");
-
-        MoviesFragmentGrid moviesFragmentGrid = new MoviesFragmentGrid();
-        moviesFragmentGrid.getMovies(MoviesFragmentGrid.sortBy(getContext()));
+        this.sortBy(getContext());
+        getMovies(sortBy(getContext()));
     }
+
+    /**
+     * Used to make a async call to movies DB to fetch a list of popular movies.
+     */
+    public void getMovies(String sortBy) {
+
+
+        Retrofit client = new Retrofit.Builder()
+                .baseUrl(Constants.MOVIE_DB_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        DiscoverMovieService api = client.create(DiscoverMovieService.class);
+
+        Call<MovieInfo> restCall = api.getMovies(sortBy, Constants.MOVIE_DB_API_KEY);
+
+        restCall.enqueue(new retrofit.Callback<MovieInfo>() {
+            @Override
+            public void onResponse(Response<MovieInfo> response, Retrofit retrofit) {
+                if (response.isSuccess()) {
+                    // request successful (status code 200, 201)
+                    MovieInfo movieInfo = response.body();
+                    mMovieList = movieInfo.getmMovieList();
+                    //fetch data from database in case favorite is selected from settings sort criteria. See lines 324 onsortcriteria and 101 Onstart.
+
+                    insertMovieRecords(mMovieList);
+                } else {
+                    //request not successful (like 400,401,403 etc)
+                    //Handle errors
+                    Log.d(LOG_TAG, "Web call error");
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(LOG_TAG, "Web call error. exception: " + t.toString()+ "...printing stack trace below \\n");
+                t.printStackTrace();
+            }
+        });
+    }
+
+    public static String sortBy(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString(context.getString(R.string.pref_sort_key),
+                context.getString(R.string.pref_sort_order_default));
+    }
+
+    /**
+     * Inserts movie JSON result into movie.db DB.
+     *
+     */
+    private void insertMovieRecords(final List<Movie> movieList) {
+        // Insert the new movie information into the database
+        Vector<ContentValues> cVVector = new Vector<ContentValues>(movieList.size());
+
+        for (Movie movie : movieList) {
+
+            ContentValues movieValues = new ContentValues();
+            movieValues.put(MovieContract.MovieEntry._ID, movie.getmId());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_TITLE, movie.getmTitle());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, movie.getmPosterPath());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, movie.getmOverview());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, movie.getmVoteAverage());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movie.getmReleaseDate());
+
+            if (sortBy(getContext()).equalsIgnoreCase(String.valueOf(R.string.pref_sort_by_popular))) {
+                movieValues.put(MovieContract.MovieEntry.COLUMN_IS_POPULAR, 1);   // SQLite does not have a separate Boolean storage class.
+            } else if (sortBy(getContext()).equalsIgnoreCase(String.valueOf(R.string.pref_sort_by_rating))) {
+                movieValues.put(MovieContract.MovieEntry.COLUMN_IS_RATED, 1);     // Instead, Boolean values are stored as integers 0 (false) and 1 (true).
+            }
+            cVVector.add(movieValues);
+
+
+        }
+
+        int inserted = 0;
+        // add to database
+        if (cVVector.size() > 0) {
+            ContentValues[] cvArray = new ContentValues[cVVector.size()];
+            cVVector.toArray(cvArray);
+            inserted = getContext().getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, cvArray);
+        }
+        Log.d(LOG_TAG, "DB Complete. " + inserted + " Inserted");
+    }
+
 
     /**
      * Helper method to schedule the sync adapter periodic execution

@@ -36,11 +36,7 @@ public class MainActivity extends ParentActivity implements MoviesFragmentGrid.C
 
         checkGPS(); //ensures that the app can't be used without a successful GPS check
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String sortBy = prefs.getString(getString(R.string.pref_sort_key),
-                getString(R.string.pref_sort_order_default));
-
-        mSortCriteria = sortBy;
+        mSortCriteria = MovieSyncAdapter.sortBy(this);
         setContentView(R.layout.activity_main);
 
         if (findViewById(R.id.movie_details_container) != null) {
@@ -72,12 +68,8 @@ public class MainActivity extends ParentActivity implements MoviesFragmentGrid.C
         //ensures that if the user returns to the running app through some other means, such as through the back button, the GPS check is still performed
         checkGPS();
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String sortBy = prefs.getString(getString(R.string.pref_sort_key),
-                getString(R.string.pref_sort_order_default));
+        String sortCriteria = MovieSyncAdapter.sortBy(this);
 
-
-        String sortCriteria = sortBy;
         // update the location in our second pane using the fragment manager
         if (sortCriteria != null && !sortCriteria.equals(mSortCriteria)) {
 

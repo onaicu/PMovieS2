@@ -1,6 +1,7 @@
 package tv.freetel.pmovies2.data;
 
 
+import android.annotation.TargetApi;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -136,6 +137,8 @@ public class MovieProvider extends ContentProvider {
      * and the update and delete methods that follow, we will switch based on the URI and act on the appropriate table:
      */
 
+
+
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -216,5 +219,53 @@ public class MovieProvider extends ContentProvider {
 
         return rows;
     }
+
+    /**
+     * Handles requests to insert a set of new rows. In a normal ContentProvider's implementation,
+     * we want to provide proper functionality for the insert method as well.
+     *
+     * @param uri    The content:// URI of the insertion request.
+     * @param values An array of sets of column_name/value pairs to add to the database.
+     *               This must not be {@code null}.
+     *
+     * @return The number of values that were inserted.
+     */
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case MOVIE:
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            default:
+                return super.bulkInsert(uri, values);
+        }
+    }
+
+    // You do not need to call this method. This is a method specifically to assist the testing
+    // framework in running smoothly. You can read more at:
+    // http://developer.android.com/reference/android/content/ContentProvider.html#shutdown()
+    @Override
+    @TargetApi(11)
+    public void shutdown() {
+        mOpenHelper.close();
+        super.shutdown();
+    }
+
 
 }
