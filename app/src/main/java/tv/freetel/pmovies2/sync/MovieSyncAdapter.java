@@ -123,14 +123,12 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, movie.getmVoteAverage());
             movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movie.getmReleaseDate());
 
-            if (sortBy(getContext()).equalsIgnoreCase(String.valueOf(R.string.pref_sort_by_popular))) {
-                movieValues.put(MovieContract.MovieEntry.COLUMN_IS_POPULAR, 1);   // SQLite does not have a separate Boolean storage class.
-            } else if (sortBy(getContext()).equalsIgnoreCase(String.valueOf(R.string.pref_sort_by_rating))) {
-                movieValues.put(MovieContract.MovieEntry.COLUMN_IS_RATED, 1);     // Instead, Boolean values are stored as integers 0 (false) and 1 (true).
+            if (sortBy(getContext()).equalsIgnoreCase(getContext().getString(R.string.pref_sort_by_popular))) {
+                movieValues.put(MovieContract.MovieEntry.COLUMN_IS_POPULAR, true);   // SQLite does not have a separate Boolean storage class.
+            } else if (sortBy(getContext()).equalsIgnoreCase(getContext().getString(R.string.pref_sort_by_rating))) {
+                movieValues.put(MovieContract.MovieEntry.COLUMN_IS_RATED, true);     // Instead, Boolean values are stored as integers 0 (false) and 1 (true).
             }
             cVVector.add(movieValues);
-
-
         }
 
         int inserted = 0;

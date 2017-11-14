@@ -56,7 +56,6 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
 
     //ADAPTERS**************************************************************
     private GalleryItemAdapter mFavoriteMovieAdapter;
-    private List<Movie> mMovieList = new ArrayList<>();
     private static final int MOVIE_LOADER_ID = 0;
 
     // For the main Grid layout view, we're showing only a small subset of the stored data.
@@ -176,7 +175,7 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
          * Used to fire an event to the Bus that will fetch movie list from Open Movie DB REST back-end.
          * The sort order is retrieved from Shared Preferences
          */
-        private void fetchMovies() {
+        public void fetchMovies() {
             MovieSyncAdapter.syncImmediately(getContext());
         }
 

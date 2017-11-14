@@ -26,7 +26,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
      * .db extension.
      */
 
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 15;
 
     //  Create a constructor that accepts a context and call through to the superclass constructor
 
@@ -74,9 +74,9 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                         MovieEntry.COLUMN_POSTER_PATH + " TEXT, "          +
                         MovieEntry.COLUMN_OVERVIEW   + " TEXT, "           +
                         MovieEntry.COLUMN_VOTE_AVERAGE + " TEXT NOT NULL, "          +
-                        MovieEntry.COLUMN_RELEASE_DATE + " TEXT , "          +
-                        MovieEntry.COLUMN_IS_POPULAR + " INTEGER , " +    // SQLite does not have a separate Boolean storage class.
-                        MovieEntry.COLUMN_IS_RATED + " INTEGER , " +     // Instead, Boolean values are stored as integers 0 (false) and 1 (true).
+                        MovieEntry.COLUMN_RELEASE_DATE + " TEXT, "          +
+                        MovieEntry.COLUMN_IS_POPULAR + " INTEGER, " +    // SQLite does not have a separate Boolean storage class.
+                        MovieEntry.COLUMN_IS_RATED + " INTEGER, " +     // Instead, Boolean values are stored as integers 0 (false) and 1 (true).
                         MovieEntry.COLUMN_IS_FAVORITE + " INTEGER )" );
     }
 
