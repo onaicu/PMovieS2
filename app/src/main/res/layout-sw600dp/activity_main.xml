@@ -17,7 +17,7 @@
         android:layout_height="match_parent"
         android:layout_weight="2"
         tools:context=".view.MainActivity"
-        tools:layout="R.layout.fragment_moviegallery" />
+        tools:layout="R.layout.fragment_movies_fragment_grid" />
 
     <FrameLayout
         android:id="@+id/movie_details_container"

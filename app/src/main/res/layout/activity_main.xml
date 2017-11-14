@@ -5,4 +5,4 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".view.MainActivity"
-    tools:layout="R.layout.fragment_moviegallery" />
+    tools:layout="R.layout.fragment_movies_fragment_grid" />

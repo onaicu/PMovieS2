@@ -101,7 +101,7 @@ public class MainActivity extends ParentActivity implements MoviesFragmentGrid.C
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_details_container, fragment, MOVIEFRAGMENT_TAG)
-                    .commit();
+                    .commit();// Commit the transaction
         } else {
             Intent intent = new Intent(this, ShowDetailsActivity.class)
                     .setData(movieUri)

@@ -14,7 +14,7 @@ public class ShowDetailsActivity
         extends ParentActivity {
 
     private static final String LOG_TAG = ShowDetailsActivity.class.getSimpleName();
-    public static final String EXTRA_MOVIE = "tv.freetel.pmovies1.EXTRA_MOVIE";
+    public static final String EXTRA_MOVIE = "tv.freetel.pmovies2.EXTRA_MOVIE";
 
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
     private static final String TAG_TASK_FRAGMENT = "task_fragment";

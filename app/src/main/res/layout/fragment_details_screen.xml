@@ -6,7 +6,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context=".view.DetailsFragment">
+        tools:context=".view.DetailsScreenFragment">
 
         <LinearLayout
             android:id="@+id/movieTitlePlaceHolder"
