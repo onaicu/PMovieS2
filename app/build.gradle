@@ -78,6 +78,8 @@ dependencies {
     compile 'com.google.android.gms:play-services:10.2.1'
     compile 'com.android.support:support-annotations:27.0.0'
 
+    compile 'su.j2e:rv-joiner:1.0.7'
+
     apply plugin: 'com.google.gms.google-services'
 
 }
