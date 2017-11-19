@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.otto.Subscribe;
 import com.squareup.picasso.Picasso;
 
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import retrofit.Call;
 import retrofit.Callback;
@@ -51,6 +53,7 @@ import tv.freetel.pmovies2.network.model.ReviewInfo;
 import tv.freetel.pmovies2.network.model.Trailer;
 import tv.freetel.pmovies2.network.model.TrailerInfo;
 import tv.freetel.pmovies2.network.service.DiscoverMovieService;
+import tv.freetel.pmovies2.sync.MovieSyncAdapter;
 import tv.freetel.pmovies2.util.Constants;
 
 /**
@@ -78,6 +81,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
     // all columns from the movie db table
     private static final String[] MOVIE_COLUMNS = {
             MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
+            MovieContract.MovieEntry.COLUMN_MOVIE_ID,
             MovieContract.MovieEntry.COLUMN_TITLE,
             MovieContract.MovieEntry.COLUMN_OVERVIEW,
             MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
@@ -89,24 +93,31 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
 
     /**
      * these constants correspond to the projection defined above, and must change if the projection changes
-      */
-    private static final int COL_MOVIE_ID = 0;
-    private static final int COL_MOVIE_TITLE = 1;
-    private static final int COL_MOVIE_OVERVIEW = 2;
-    private static final int COL_MOVIE_VOTE_AVERAGE = 3;
-    private static final int COL_MOVIE_RELEASE_DATE = 4;
-    private static final int COL_MOVIE_POSTER_PATH = 5;
-    private static final int COL_MOVIE_IS_FAVORITE = 6;
+     */
+    private static final int COL_ID = 0;
+    private static final int COL_MOVIE_ID = 1;
+    private static final int COL_MOVIE_TITLE = 2;
+    private static final int COL_MOVIE_OVERVIEW = 3;
+    private static final int COL_MOVIE_VOTE_AVERAGE = 4;
+    private static final int COL_MOVIE_RELEASE_DATE = 5;
+    private static final int COL_MOVIE_POSTER_PATH = 6;
+    private static final int COL_MOVIE_IS_FAVORITE = 7;
 
     /**
      * LAYOUTS**************************************************************
      */
 
+    @Bind(R.id.movieTitle)
     TextView mMovieTitleTxtV;
+    @Bind(R.id.moviePoster)
     ImageView mMoviePosterImV;
+    @Bind(R.id.movieOverview)
     TextView mMovieOverviewTxtV;
+    @Bind(R.id.movieRating)
     TextView mMovieRatingTxtV;
+    @Bind(R.id.movieReleaseYear)
     TextView mMovieReleaseYearTxtV;
+    @Bind(R.id.favoriteIcon)
     ImageView mMovieFavorite;
 
     /**
@@ -118,13 +129,11 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
     /* Using Bind, we get a reference to our RecyclerView from xml. This allows us to
     *do things like set the adapter of the RecyclerView and toggle the visibility. RV=recycling view layout
     */
-
+    @Bind(R.id.movieReviewsRV)
     RecyclerView mMovieReviewRV;
     MovieTrailerAdapter movieTrailerAdapter;
+    @Bind(R.id.movieTrailersRV)
     RecyclerView mTrailerRV;
-
-    private RecyclerView rv;
-    private RvJoiner rvJoiner = new RvJoiner();
 
     //VARIABLES**************************************************************
     // declare global
@@ -178,47 +187,29 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
             mMovieId = arguments.getInt(MOVIE_ID);
         }
 
-        View viewRecycler = inflater.inflate(R.layout.fragment_details_screen, container, false);
-        rv = (RecyclerView) viewRecycler.findViewById(R.id.rv);
-        rv.setLayoutManager(new LinearLayoutManager(getContext()));
+        View view = inflater.inflate(R.layout.fragment_details_screen, container, false);
+        ButterKnife.bind(this, view);
+        mMovieReviewRV.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mTrailerRV.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        mMovieReviewRV.setHasFixedSize(true);
+        mTrailerRV.setHasFixedSize(true);
 
+        movieReviewAdapter = new MovieReviewAdapter(null);
+        movieTrailerAdapter = new MovieTrailerAdapter(null,getContext());
 
-        //Initialize the review adapter with Arraylist because List is a abstract class.
-        movieReviewAdapter = new MovieReviewAdapter(null);;
-        movieTrailerAdapter = new MovieTrailerAdapter(null, getContext());
+        /*
+        * The MovieReviewAdapter is responsible for displaying each item in the list.
+        */
+        mMovieReviewRV.setAdapter(movieReviewAdapter);
+        mTrailerRV.setAdapter(movieTrailerAdapter);
 
+        fillDetailsScreen();
 
-        if (arguments == null) {
-            rvJoiner.add(new JoinableLayout(R.layout.placeholder));
-        } else {
+        getTrailers(mMovieId);
+        getReviews(mMovieId);
 
-            rvJoiner.add(new JoinableLayout(R.layout.movie_details, new JoinableLayout.Callback() {
-                @Override
-                public void onInflateComplete(View view, ViewGroup parent) {
-                    mMovieTitleTxtV = (TextView) view.findViewById(R.id.movieTitle);
-                    mMoviePosterImV = (ImageView) view.findViewById(R.id.moviePoster);
-                    mMovieReleaseYearTxtV = (TextView) view.findViewById(R.id.movieReleaseYear);
-                    mMovieRatingTxtV = (TextView) view.findViewById(R.id.movieRating);
-                    mMovieOverviewTxtV = (TextView) view.findViewById(R.id.movieOverview);
-                    mMovieFavorite = (ImageView) view.findViewById(R.id.favoriteIcon);
-
-                    fillDetailsScreen();
-                }
-            }));
-
-        rvJoiner.add(new JoinableLayout(R.layout.trailers));
-        rvJoiner.add(new JoinableAdapter(movieTrailerAdapter));
-        rvJoiner.add(new JoinableLayout(R.layout.reviews));
-        rvJoiner.add(new JoinableAdapter(movieReviewAdapter));
-       }
-
-        //Set adapter to inflate the movie trailer reviews.
-        rv.setAdapter(rvJoiner.getAdapter());
-
-        View view = inflater.inflate(R.layout.movie_details, container, false);
-
-        return viewRecycler;
+        return view;
     }
 
     /**
@@ -413,6 +404,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
                 mMovieFavorite.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        FirebaseCrash.log("Movie ID "+mMovieID+" saved as Favorite");
                         // Create and execute the background task.
                         DBUpdateTask task = new DBUpdateTask(mIsFavorite, mMovieID);
                         task.execute();

@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="com.google.apis:google-api-services-youtube:v3-rev186-1.23.0@jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.apis/google-api-services-youtube/v3-rev186-1.23.0/776fc9b2408c0b49a71c9bef0ca4c60318eb5cb4/google-api-services-youtube-v3-rev186-1.23.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.apis/google-api-services-youtube/v3-rev186-1.23.0/4c9ae75d0edaf9faa3941a43ac8efc8aec7cc23c/google-api-services-youtube-v3-rev186-1.23.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

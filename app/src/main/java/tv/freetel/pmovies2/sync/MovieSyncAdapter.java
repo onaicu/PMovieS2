@@ -116,7 +116,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         for (Movie movie : movieList) {
 
             ContentValues movieValues = new ContentValues();
-            movieValues.put(MovieContract.MovieEntry._ID, movie.getmId());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, movie.getmId());
             movieValues.put(MovieContract.MovieEntry.COLUMN_TITLE, movie.getmTitle());
             movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_PATH, movie.getmPosterPath());
             movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, movie.getmOverview());
