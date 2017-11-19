@@ -24,9 +24,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.otto.Subscribe;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -215,7 +217,8 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
         rv.setAdapter(rvJoiner.getAdapter());
 
         View view = inflater.inflate(R.layout.movie_details, container, false);
-        return view;
+
+        return viewRecycler;
     }
 
     /**
@@ -465,6 +468,26 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
         shareIntent.putExtra(Intent.EXTRA_TEXT,
                 mMovieTitleTxtV + MOVIE_DETAILS_SHARE_HASHTAG);
         return shareIntent;
+    }
+
+    private void setupMovieReviewAdapter(final List<MovieReview> movieReviews) {
+        //if (getActivity() == null || mMovieReviewList == null) return;
+        if (getActivity() == null) return;
+
+        if (movieReviews != null) {
+            movieReviewAdapter.setmMovieReviewList(movieReviews);
+            movieReviewAdapter.notifyDataSetChanged();
+            Log.d(LOG_TAG, "# of reviews in setupAdapet is: " + movieReviews.size());
+        }
+    }
+
+    private void setupMovieTrailerdapter(final List<Trailer> movieTrailers) {
+        if (getActivity() == null) return;
+
+        if (movieTrailers != null) {
+            movieTrailerAdapter.setmMovieTrailerList(movieTrailers);
+            movieTrailerAdapter.notifyDataSetChanged();
+        }
     }
 
     /**
