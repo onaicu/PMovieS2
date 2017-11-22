@@ -56,6 +56,7 @@ import tv.freetel.pmovies2.network.service.DiscoverMovieService;
 import tv.freetel.pmovies2.sync.MovieSyncAdapter;
 import tv.freetel.pmovies2.util.Constants;
 
+
 /**
  * This Fragment class is added by ShowDetailsActivity to show details screen
  * <p>
@@ -314,7 +315,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
 
             // Now create and return a CursorLoader that will take care of
             // creating a Cursor for the data being displayed.
-            CursorLoader loader = new CursorLoader(
+            return new android.support.v4.content.CursorLoader(
                     getActivity(),
                     mUri,
                     MOVIE_COLUMNS,      //projection
@@ -323,7 +324,6 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
                     null                //sort order
             );
         }
-        ;
         return null;
     }
 
