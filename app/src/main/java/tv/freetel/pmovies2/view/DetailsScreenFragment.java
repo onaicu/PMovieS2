@@ -81,8 +81,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
     // Since the details screen shows all movie attributes, define a projection that contains
     // all columns from the movie db table
     private static final String[] MOVIE_COLUMNS = {
-            MovieContract.MovieEntry.TABLE_NAME + "." +
-            MovieContract.MovieEntry.COLUMN_MOVIE_ID,
+            MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
             MovieContract.MovieEntry.COLUMN_TITLE,
             MovieContract.MovieEntry.COLUMN_OVERVIEW,
             MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
@@ -512,7 +511,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
             }
 
             // Defines selection criteria for the rows you want to update
-            String selectionClause = MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ?";
+            String selectionClause = MovieContract.MovieEntry._ID + " = ?";
             String[] selectionArgs = new String[]{"" + movieID};
 
             // Defines a variable to contain the number of updated rows
