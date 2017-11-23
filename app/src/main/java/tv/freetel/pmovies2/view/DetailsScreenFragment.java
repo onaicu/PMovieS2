@@ -81,7 +81,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
     // Since the details screen shows all movie attributes, define a projection that contains
     // all columns from the movie db table
     private static final String[] MOVIE_COLUMNS = {
-            MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
+            MovieContract.MovieEntry.TABLE_NAME + "." +
             MovieContract.MovieEntry.COLUMN_MOVIE_ID,
             MovieContract.MovieEntry.COLUMN_TITLE,
             MovieContract.MovieEntry.COLUMN_OVERVIEW,
@@ -95,14 +95,13 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
     /**
      * these constants correspond to the projection defined above, and must change if the projection changes
      */
-    private static final int COL_ID = 0;
-    private static final int COL_MOVIE_ID = 1;
-    private static final int COL_MOVIE_TITLE = 2;
-    private static final int COL_MOVIE_OVERVIEW = 3;
-    private static final int COL_MOVIE_VOTE_AVERAGE = 4;
-    private static final int COL_MOVIE_RELEASE_DATE = 5;
-    private static final int COL_MOVIE_POSTER_PATH = 6;
-    private static final int COL_MOVIE_IS_FAVORITE = 7;
+    private static final int COL_MOVIE_ID = 0;
+    private static final int COL_MOVIE_TITLE = 1;
+    private static final int COL_MOVIE_OVERVIEW = 2;
+    private static final int COL_MOVIE_VOTE_AVERAGE = 3;
+    private static final int COL_MOVIE_RELEASE_DATE = 4;
+    private static final int COL_MOVIE_POSTER_PATH = 5;
+    private static final int COL_MOVIE_IS_FAVORITE = 6;
 
     /**
      * LAYOUTS**************************************************************
@@ -310,7 +309,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (mUri != null) {
-            String selectionClause = MovieContract.MovieEntry._ID + " = ?";
+            String selectionClause = MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ?";
             String[] selectionArgs = new String[]{"" + mMovieId};
 
             // Now create and return a CursorLoader that will take care of
@@ -392,34 +391,32 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
 
         if (mMovieReleaseYearTxtV != null) {
             mMovieReleaseYearTxtV.setText(mMovieReleaseYear);
+        }
 
-            if (mMovieFavorite != null) {
-                if (mIsFavorite) {
-                    showFavoriteIcon(mMovieFavorite, R.drawable.ic_favorite_black_24dp);
-                } else {
-                    showFavoriteIcon(mMovieFavorite, R.drawable.ic_favorite_border_black_24dp);
-                }
 
+        if (mMovieFavorite != null) {
+            if (mIsFavorite) {
+                mMovieFavorite.setImageResource(R.drawable.ic_favorite_black_24dp);
+                mMovieFavorite.setVisibility(View.VISIBLE);
+            } else {
+                mMovieFavorite.setImageResource(R.drawable.ic_favorite_border_black_24dp);
+                mMovieFavorite.setVisibility(View.VISIBLE);
+            }
 
                 mMovieFavorite.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         FirebaseCrash.log("Movie ID "+mMovieID+" saved as Favorite");
                         // Create and execute the background task.
+
                         DBUpdateTask task = new DBUpdateTask(mIsFavorite, mMovieID);
                         task.execute();
                     }
                 });
-            }
-
-            fetchMovieTrailersAndReviews(mMovieID);
 
         }
-    }
+            fetchMovieTrailersAndReviews(mMovieID);
 
-    private void showFavoriteIcon(ImageView image, int resoureId) {
-        image.setImageResource(resoureId);
-        image.setVisibility(View.VISIBLE);
     }
 
     private void fetchMovieTrailersAndReviews(final int movieId) {
@@ -515,7 +512,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
             }
 
             // Defines selection criteria for the rows you want to update
-            String selectionClause = MovieContract.MovieEntry._ID + " = ?";
+            String selectionClause = MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ?";
             String[] selectionArgs = new String[]{"" + movieID};
 
             // Defines a variable to contain the number of updated rows

@@ -166,12 +166,7 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
                     null); //sort order
         }
 
-        /**
-         * This callback makes the fragment visible to the user when the containing activity is started.
-         * We want to make a network request before user can  begin interacting with the user (onResume callback)
-         */
-
-        /**
+       /**
          * Used to fire an event to the Bus that will fetch movie list from Open Movie DB REST back-end.
          * The sort order is retrieved from Shared Preferences
          */

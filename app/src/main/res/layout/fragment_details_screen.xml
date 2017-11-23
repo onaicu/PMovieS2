@@ -66,8 +66,7 @@
             android:contentDescription="@string/img_movie_favorite_desc"
             android:scaleType="centerCrop"
             android:visibility="invisible"
-            android:clickable="true"
-            android:focusable="auto"/>
+            />
 
 
         <TextView
