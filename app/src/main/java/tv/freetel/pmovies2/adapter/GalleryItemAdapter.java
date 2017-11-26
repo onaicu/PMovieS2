@@ -33,8 +33,6 @@ import tv.freetel.pmovies2.util.Constants;
 
     private static final String LOG_TAG = GalleryItemAdapter.class.getSimpleName();
     private Context mContext;
-    @Bind(R.id.gallery_item_imageView)
-    ImageView imageView;
 
     /** public GalleryItemAdapter(Context context, List<Movie> movies) {
         super(context, 0, movies);
@@ -62,6 +60,12 @@ import tv.freetel.pmovies2.util.Constants;
     public void bindView(View view, Context context, Cursor cursor) {
         //Picasso.with(mContext).invalidate(Constants.MOVIE_DB_POSTER_URL + Constants.POSTER_PHONE_SIZE + convertCursorRowToUXFormat(cursor));
         Log.d(LOG_TAG, "Loading image... for movie ID: " + cursor.getInt(0) + " movie title: " + cursor.getString(1) + " poster path: " + cursor.getString(2));
+
+        /**
+         * image view item cannot be declared global. It needs to stay local in order to avoid replicating the images
+         *from one movie to another.
+         */
+        ImageView imageView = view.findViewById(R.id.gallery_item_imageView);
 
         Picasso.with(mContext)
                 .load(Constants.MOVIE_DB_POSTER_URL + Constants.POSTER_PHONE_SIZE + convertCursorRowToUXFormat(cursor))

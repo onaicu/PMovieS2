@@ -257,6 +257,14 @@ public class MoviesFragmentGrid extends Fragment implements LoaderManager.Loader
         //make a web call if the user selected popular or highly rated
         if (!MovieSyncAdapter.sortBy(getContext()).equalsIgnoreCase(getResources().getString(R.string.pref_sort_by_favorite))) {
             fetchMovies();
+            /**
+             *because the GalleryItemAdapter/favorite adapter accepts only cursors to display data on the ui, we need to
+             *call the getLoaderManager method also for the fetchMovies case. The fetchMovies () method is fetching the data from
+             *the api through the getMovies method called in the MovieSyncAdapter and then stores the data in the database through the
+             *insertmovies method (located in MovieSyncApadter). However in order to diplay it properly on the UI whenever the sortcriteria
+             *is selected, the stored data needs to be displayed through a loader.
+             */
+            getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
         } else {
             //if the user selected favorites, just show movies in the local DB
             getLoaderManager().restartLoader(MOVIE_LOADER_ID, null, this);
