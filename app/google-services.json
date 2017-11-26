@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "921050932066",
+    "firebase_url": "https://pmovies2-382a5.firebaseio.com",
+    "project_id": "pmovies2-382a5",
+    "storage_bucket": "pmovies2-382a5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:921050932066:android:034915038dd6eb64",
+        "android_client_info": {
+          "package_name": "tv.freetel.pmovies2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "921050932066-f0hsbpubbik4m3b5agac5ko58ba8nmmu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2ul1dW3K3HBvK-pUqqbagZJUXl-_YKKo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

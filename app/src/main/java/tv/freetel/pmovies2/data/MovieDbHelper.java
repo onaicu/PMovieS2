@@ -16,7 +16,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
      * This is the name of our database. Database names should be descriptive and end with the
      * .db extension.
      */
-    public static final String DATABASE_NAME = "favoriteMovie.db";
+    public static final String DATABASE_NAME = "movieList.db";
     //  Increment the database version after altering the behavior of the table
     //Increment the database version after changing the create table statement
 
@@ -26,7 +26,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
      * .db extension.
      */
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 18;
 
     //  Create a constructor that accepts a context and call through to the superclass constructor
 
@@ -34,46 +34,53 @@ public class MovieDbHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-//  Override onCreate and create the weather table from within it
     /**
-     * Called when the database is created for the first time. This is where the creation of
-     * tables and the initial population of the tables should happen.
-     *
-     * @param sqLiteDatabase The database.
+     * There are two required implementations for this class: onCreate() and onUpgrade().
+     * These are fairly self explanatory, the first is called when the database is created,
+     * and the second is called anytime DATABASE_VERSION is incremented. For this example, we will not handle
+     * updating the database:
+     */
+
+    /**
+     * Called when the database is first created.
+     * @param db The database being created, which all SQL statements will be executed on.
      */
     @Override
-    public void onCreate(SQLiteDatabase sqLiteDatabase) {
+    public void onCreate(SQLiteDatabase db) {
+        addMovieTable(db);
+    }
 
-        /*
-         * This String will contain a simple SQL statement that will create a table that will
-         * cache our favoriteMovie data.
-         */
-        final String SQL_CREATE_FAVORITE_MOVIE_TABLE =
+    /**
+     * Inserts the movie table into the database
+     * @param sqLiteDatabase The SQLiteDatabase the table is being inserted into.
+     */
 
+    private void addMovieTable (SQLiteDatabase sqLiteDatabase) {
+
+        sqLiteDatabase.execSQL(
                 "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
-// Append NOT NULL to each column's type declaration except for the _ID
+                        // Append NOT NULL to each column's type declaration except for the _ID
                 /*
                  * MovieEntry did not explicitly declare a column called "_ID". However,
                  * MovieEntry implements the interface, "BaseColumns", which does have a field
                  * named "_ID". We use that here to designate our table's primary key.
+                 * columns can be null in order to avoid:
+                 * e.g. SQLiteConstraintException: NOT NULL constraint failed: favorite_movie.movie_id (code 1299)
                  */
-                        MovieEntry._ID              + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        MovieEntry._ID              + " INTEGER PRIMARY KEY ON CONFLICT IGNORE, " + // For the INSERT and UPDATE commands, the keywords "ON CONFLICT" are replaced by "OR", this is to avoid unique constraint exception
 
-                        MovieEntry.COLUMN_MOVIE_ID   + " INTEGER NOT NULL, "                 +
+                        MovieEntry.COLUMN_MOVIE_ID   + " INTEGER, "                 +
                         MovieEntry.COLUMN_TITLE      + " TEXT NOT NULL, "           +
-                        MovieEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL, "          +
-                        MovieEntry.COLUMN_OVERVIEW   + " TEXT NOT NULL, "           +
-                        MovieEntry.COLUMN_VOTE_AVERAGE + "REAL NOT NULL, "          +
-                        MovieEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL, "         + ");";
-
-        /*
-         * After we've spelled out our SQLite table creation statement above, we actually execute
-         * that SQL with the execSQL method of our SQLite database object.
-         */
-        sqLiteDatabase.execSQL(SQL_CREATE_FAVORITE_MOVIE_TABLE);
+                        MovieEntry.COLUMN_POSTER_PATH + " TEXT, "          +
+                        MovieEntry.COLUMN_OVERVIEW   + " TEXT, "           +
+                        MovieEntry.COLUMN_VOTE_AVERAGE + " TEXT NOT NULL, "          +
+                        MovieEntry.COLUMN_RELEASE_DATE + " TEXT, "          +
+                        MovieEntry.COLUMN_IS_POPULAR + " INTEGER, " +    // SQLite does not have a separate Boolean storage class.
+                        MovieEntry.COLUMN_IS_RATED + " INTEGER, " +     // Instead, Boolean values are stored as integers 0 (false) and 1 (true).
+                        MovieEntry.COLUMN_IS_FAVORITE + " INTEGER )" );
     }
 
-//  Override onUpgrade, but don't do anything within it yet
+    //  Override onUpgrade, but don't do anything within it yet
     /**
      * This database is only a cache for online data, so its upgrade policy is simply to discard
      * the data and call through to onCreate to recreate the table. Note that this only fires if
