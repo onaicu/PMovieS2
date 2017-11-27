@@ -1,9 +1,8 @@
 package tv.freetel.pmovies2.network.service;
-
-import retrofit.Call;
-import retrofit.http.GET;
-import retrofit.http.Path;
-import retrofit.http.Query;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 import tv.freetel.pmovies2.network.model.MovieInfo;
 import tv.freetel.pmovies2.network.model.ReviewInfo;
 import tv.freetel.pmovies2.network.model.TrailerInfo;
