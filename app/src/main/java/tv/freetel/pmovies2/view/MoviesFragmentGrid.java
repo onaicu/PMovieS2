@@ -1,11 +1,7 @@
 package tv.freetel.pmovies2.view;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -20,27 +16,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import com.squareup.otto.Subscribe;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnItemClick;
-import retrofit.Call;
-import retrofit.GsonConverterFactory;
-import retrofit.Response;
-import retrofit.Retrofit;
 import tv.freetel.pmovies2.R;
 import tv.freetel.pmovies2.adapter.GalleryItemAdapter;
 import tv.freetel.pmovies2.data.MovieContract;
-import tv.freetel.pmovies2.network.model.Movie;
-import tv.freetel.pmovies2.network.model.MovieInfo;
-import tv.freetel.pmovies2.network.service.DiscoverMovieService;
 import tv.freetel.pmovies2.sync.MovieSyncAdapter;
-import tv.freetel.pmovies2.util.Constants;
 
 /**
  * A placeholder fragment containing a simple view.

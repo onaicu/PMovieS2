@@ -1,7 +1,6 @@
 package tv.freetel.pmovies2.view;
 
 import android.content.ContentValues;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -25,24 +24,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.crash.FirebaseCrash;
-import com.squareup.otto.Subscribe;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.GsonConverterFactory;
-import retrofit.Response;
-import retrofit.Retrofit;
-import su.j2e.rvjoiner.JoinableAdapter;
-import su.j2e.rvjoiner.JoinableLayout;
-import su.j2e.rvjoiner.RvJoiner;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import tv.freetel.pmovies2.R;
 import tv.freetel.pmovies2.adapter.MovieReviewAdapter;
 import tv.freetel.pmovies2.adapter.MovieTrailerAdapter;
@@ -53,7 +47,6 @@ import tv.freetel.pmovies2.network.model.ReviewInfo;
 import tv.freetel.pmovies2.network.model.Trailer;
 import tv.freetel.pmovies2.network.model.TrailerInfo;
 import tv.freetel.pmovies2.network.service.DiscoverMovieService;
-import tv.freetel.pmovies2.sync.MovieSyncAdapter;
 import tv.freetel.pmovies2.util.Constants;
 
 
@@ -230,9 +223,10 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
 
         Log.d(LOG_TAG, "Making REST call to fetch movie reviews. Movie ID: " + movieId);
         restCall.enqueue(new Callback<ReviewInfo>() {
+
             @Override
-            public void onResponse(Response<ReviewInfo> response, Retrofit retrofit) {
-                if (response.isSuccess()) {
+            public void onResponse(Call<ReviewInfo> call, Response<ReviewInfo> response) {
+                if (response.isSuccessful()) {
                     // request successful (status code 200, 201)
                     ReviewInfo movieReviews = response.body();
                     movieReviewAdapter.addAll(movieReviews.getmReviewList());
@@ -245,9 +239,10 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<ReviewInfo> call, Throwable t) {
                 Log.d(LOG_TAG, "Web call error to get reviews. exception: " + toString());
             }
+
         });
     }
 
@@ -272,8 +267,8 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
         Log.d(LOG_TAG, "Making REST call to fetch movie reviews. Movie ID: " + movieId);
         restCall.enqueue(new Callback<TrailerInfo>() {
             @Override
-            public void onResponse(Response<TrailerInfo> response, Retrofit retrofit) {
-                if (response.isSuccess()) {
+            public void onResponse(Call<TrailerInfo> call, Response<TrailerInfo> response) {
+                if (response.isSuccessful()) {
                     // request successful (status code 200, 201)
                     TrailerInfo movieTrailers = response.body();
                     movieTrailerAdapter.addAll(movieTrailers.getmResults());
@@ -286,9 +281,10 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<TrailerInfo> call, Throwable t) {
                 Log.d(LOG_TAG, "Web call error to get trailers. exception: " + toString());
             }
+
         });
     }
 

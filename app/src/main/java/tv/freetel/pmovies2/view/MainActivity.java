@@ -2,21 +2,14 @@ package tv.freetel.pmovies2.view;
 
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
-import retrofit.Response;
-import retrofit.Retrofit;
 import tv.freetel.pmovies2.R;
-import tv.freetel.pmovies2.network.model.MovieInfo;
 import tv.freetel.pmovies2.sync.MovieSyncAdapter;
-
-import static android.app.PendingIntent.getActivity;
 
 /**
  * This is the main launcher Activity for the app. This Activity registers an intent-filter with launcher app.

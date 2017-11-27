@@ -1,6 +1,5 @@
 package tv.freetel.pmovies2.sync;
 
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.AbstractThreadedSyncAdapter;
@@ -20,10 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import retrofit.Call;
-import retrofit.GsonConverterFactory;
-import retrofit.Response;
-import retrofit.Retrofit;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import tv.freetel.pmovies2.R;
 import tv.freetel.pmovies2.adapter.GalleryItemAdapter;
 import tv.freetel.pmovies2.data.MovieContract;
@@ -31,7 +31,6 @@ import tv.freetel.pmovies2.network.model.Movie;
 import tv.freetel.pmovies2.network.model.MovieInfo;
 import tv.freetel.pmovies2.network.service.DiscoverMovieService;
 import tv.freetel.pmovies2.util.Constants;
-import tv.freetel.pmovies2.view.MoviesFragmentGrid;
 
 public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
@@ -74,10 +73,10 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
         Call<MovieInfo> restCall = api.getMovies(sortBy, Constants.MOVIE_DB_API_KEY);
 
-        restCall.enqueue(new retrofit.Callback<MovieInfo>() {
+        restCall.enqueue(new Callback<MovieInfo>() {
             @Override
-            public void onResponse(Response<MovieInfo> response, Retrofit retrofit) {
-                if (response.isSuccess()) {
+            public void onResponse(Call<MovieInfo> call, Response<MovieInfo> response) {
+                if (response.isSuccessful()) {
                     // request successful (status code 200, 201)
                     MovieInfo movieInfo = response.body();
                     mMovieList = movieInfo.getmMovieList();
@@ -92,7 +91,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<MovieInfo> call, Throwable t) {
                 Log.d(LOG_TAG, "Web call error. exception: " + t.toString()+ "...printing stack trace below \\n");
                 t.printStackTrace();
             }
@@ -124,9 +123,9 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movie.getmReleaseDate());
 
             if (sortBy(getContext()).equalsIgnoreCase(getContext().getString(R.string.pref_sort_by_popular))) {
-                movieValues.put(MovieContract.MovieEntry.COLUMN_IS_POPULAR,true);   // SQLite does not have a separate Boolean storage class.
+                movieValues.put(MovieContract.MovieEntry.COLUMN_IS_POPULAR, true);   // SQLite does not have a separate Boolean storage class.
             } else if (sortBy(getContext()).equalsIgnoreCase(getContext().getString(R.string.pref_sort_by_rating))) {
-                movieValues.put(MovieContract.MovieEntry.COLUMN_IS_RATED,true);     // Instead, Boolean values are stored as integers 0 (false) and 1 (true).
+                movieValues.put(MovieContract.MovieEntry.COLUMN_IS_RATED, true);     // Instead, Boolean values are stored as integers 0 (false) and 1 (true).
             }
             cVVector.add(movieValues);
         }
