@@ -69,7 +69,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                  */
                         MovieEntry._ID              + " INTEGER PRIMARY KEY ON CONFLICT IGNORE, " + // For the INSERT and UPDATE commands, the keywords "ON CONFLICT" are replaced by "OR", this is to avoid unique constraint exception
 
-                        MovieEntry.COLUMN_MOVIE_ID   + " INTEGER, "                 +
+                        MovieEntry.COLUMN_MOVIE_ID   + " INTEGER UNIQUE, "                 +
                         MovieEntry.COLUMN_TITLE      + " TEXT NOT NULL, "           +
                         MovieEntry.COLUMN_POSTER_PATH + " TEXT, "          +
                         MovieEntry.COLUMN_OVERVIEW   + " TEXT, "           +
