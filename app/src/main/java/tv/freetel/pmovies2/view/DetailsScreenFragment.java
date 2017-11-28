@@ -75,6 +75,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
     // all columns from the movie db table
     private static final String[] MOVIE_COLUMNS = {
             MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
+            MovieContract.MovieEntry.COLUMN_MOVIE_ID,
             MovieContract.MovieEntry.COLUMN_TITLE,
             MovieContract.MovieEntry.COLUMN_OVERVIEW,
             MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
@@ -87,13 +88,14 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
     /**
      * these constants correspond to the projection defined above, and must change if the projection changes
      */
-    private static final int COL_MOVIE_ID = 0;
-    private static final int COL_MOVIE_TITLE = 1;
-    private static final int COL_MOVIE_OVERVIEW = 2;
-    private static final int COL_MOVIE_VOTE_AVERAGE = 3;
-    private static final int COL_MOVIE_RELEASE_DATE = 4;
-    private static final int COL_MOVIE_POSTER_PATH = 5;
-    private static final int COL_MOVIE_IS_FAVORITE = 6;
+    private static final int COL__ID = 0;
+    private static final int COL_MOVIE_ID = 1;
+    private static final int COL_MOVIE_TITLE = 2;
+    private static final int COL_MOVIE_OVERVIEW = 3;
+    private static final int COL_MOVIE_VOTE_AVERAGE = 4;
+    private static final int COL_MOVIE_RELEASE_DATE = 5;
+    private static final int COL_MOVIE_POSTER_PATH = 6;
+    private static final int COL_MOVIE_IS_FAVORITE = 7;
 
     /**
      * LAYOUTS**************************************************************
@@ -140,6 +142,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
     private String mMovieRating;
     private String mMovieReleaseYear;
     private boolean mIsFavorite;
+    private int mGridID;
 
     public DetailsScreenFragment() {
     }
@@ -187,8 +190,8 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
         mMovieReviewRV.setHasFixedSize(true);
         mTrailerRV.setHasFixedSize(true);
 
-        movieReviewAdapter = new MovieReviewAdapter(null);
-        movieTrailerAdapter = new MovieTrailerAdapter(null,getContext());
+        movieReviewAdapter = new MovieReviewAdapter(new ArrayList<MovieReview>());
+        movieTrailerAdapter = new MovieTrailerAdapter(new ArrayList<Trailer>(), getContext());
 
         /*
         * The MovieReviewAdapter is responsible for displaying each item in the list.
@@ -197,9 +200,6 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
         mTrailerRV.setAdapter(movieTrailerAdapter);
 
         fillDetailsScreen();
-
-        getTrailers(mMovieId);
-        getReviews(mMovieId);
 
         return view;
     }
@@ -329,6 +329,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
             return;
         }
 
+        mGridID = cursor.getInt(COL__ID);
         mMovieID = cursor.getInt(COL_MOVIE_ID);
         mMovieTitle = cursor.getString(COL_MOVIE_TITLE);
         mMovieOverview = cursor.getString(COL_MOVIE_OVERVIEW);
@@ -398,19 +399,20 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
                 mMovieFavorite.setVisibility(View.VISIBLE);
             }
 
-                mMovieFavorite.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        FirebaseCrash.log("Movie ID "+mMovieID+" saved as Favorite");
-                        // Create and execute the background task.
+            mMovieFavorite.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FirebaseCrash.log("Movie ID " + mMovieID + " saved as Favorite");
+                    // Create and execute the background task.
 
-                        DBUpdateTask task = new DBUpdateTask(mIsFavorite, mMovieID);
-                        task.execute();
-                    }
-                });
+                    DBUpdateTask task = new DBUpdateTask(mIsFavorite, mMovieID);
+                    task.execute();
+                }
+            });
 
         }
-            fetchMovieTrailersAndReviews(mMovieID);
+
+        fetchMovieTrailersAndReviews(mMovieID);
 
     }
 
@@ -507,7 +509,7 @@ public class DetailsScreenFragment extends Fragment implements LoaderManager.Loa
             }
 
             // Defines selection criteria for the rows you want to update
-            String selectionClause = MovieContract.MovieEntry._ID + " = ?";
+            String selectionClause = MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ?";
             String[] selectionArgs = new String[]{"" + movieID};
 
             // Defines a variable to contain the number of updated rows
