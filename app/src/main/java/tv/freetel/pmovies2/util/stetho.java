@@ -3,19 +3,16 @@ package tv.freetel.pmovies2.util;
 
 import android.app.Application;
 
-import com.facebook.stetho.Stetho;
-
-public class stetho extends Application {
-    public void onCreate() {
-        super.onCreate();
-        Stetho.initializeWithDefaults(this);
-    }
+public class Stetho extends Application {    public void onCreate() {
+    super.onCreate();
+    com.facebook.stetho.Stetho.initializeWithDefaults(this);
+}
 
     protected void initStetho() {
-        Stetho.initialize(
-                Stetho.newInitializerBuilder(this)
-                        .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
-                        .enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this))
+        com.facebook.stetho.Stetho.initialize(
+                com.facebook.stetho.Stetho.newInitializerBuilder(this)
+                        .enableDumpapp(com.facebook.stetho.Stetho.defaultDumperPluginsProvider(this))
+                        .enableWebKitInspector(com.facebook.stetho.Stetho.defaultInspectorModulesProvider(this))
                         .build());
     }
 }

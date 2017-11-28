@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

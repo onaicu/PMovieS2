@@ -26,7 +26,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
      * .db extension.
      */
 
-    private static final int DATABASE_VERSION = 18;
+    private static final int DATABASE_VERSION = 19;
 
     //  Create a constructor that accepts a context and call through to the superclass constructor
 
